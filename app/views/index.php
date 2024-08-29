@@ -94,16 +94,17 @@
                                 <button type="submit" class="edit-button">Edit</button>
                             </form>
 
-                            &nbsp;
                             <form action="/delete" method="post">
                                 <input type="hidden" name="id" value="<?php echo $kar["id"]; ?>">
-                                <button type="submit" class="hapus-button" onclick="confirmDelete()">Hapus</button>
+                                <button type="submit" class="hapus-button" onclick="return confirmDelete()">Hapus</button>
                                 <script>
                                     function confirmDelete(){
                                         if (confirm('Anda yakin mau menghapus data ini?')) {
                                             console.log('Data berhasil dihapus');
+                                            return true;
                                         } else {
                                             console.log('Data batal dihapus');
+                                            return false;
                                         }
                                     }
                                 </script>

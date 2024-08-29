@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Database;
 use App\Models\KaryawanModel;
+use App\Helpers\Helper;
 
 class KaryawanController{
 
@@ -18,7 +19,7 @@ class KaryawanController{
         if($_REQUEST != null){
             $datas['request'] = $_REQUEST;
         }
-        $this->render("index", $datas);
+        Helper::view("index", $datas);
     }
 
     function detail(): void
@@ -45,39 +46,34 @@ class KaryawanController{
         }
         $datas["penilaian"]     = $penilaian;
         $datas["page"]          = "detail";
-        $this->render("detail", $datas);
+        Helper::view("detail", $datas);
     }
 
     function add($datas = null): void
     {
         $datas["page"]  = "add";
-        $this->render("form", $datas);
+        Helper::view("add", $datas);
     }
 
     function save()
     {
-        if($_POST["nama"]  == null || $_POST["jabatan"]  == null || $_POST["nik"]  == null || $_POST["tanggung_jawab_peran"]  == null || $_POST["ketepatan_waktu"]  == null || $_POST["kualitas_pekerjaan"]  == null || $_POST["kuantitas_hasil"]  == null || $_POST["presensi"]  == null || $_POST["kerjasama_tim"]  == null || $_POST["inisiatif"]  == null || $_POST["kepemimpinan"]  == null || $_POST["perilaku"]  == null || $_POST["karakter"] == null){
-            header("Location: /add?status=error&message=Data gagal disimpan, terdapat kolom yang kosong!");
-            exit();
-        }
-        
-        if($_POST["tanggung_jawab_peran"] < 1 || $_POST["ketepatan_waktu"] < 1 || $_POST["kualitas_pekerjaan"] < 1 || $_POST["kuantitas_hasil"] < 1 || $_POST["presensi"] < 1 || $_POST["kerjasama_tim"] < 1 || $_POST["inisiatif"] < 1 || $_POST["kepemimpinan"] < 1 || $_POST["perilaku"] < 1 || $_POST["karakter"] < 1 || $_POST["tanggung_jawab_peran"] > 10 || $_POST["ketepatan_waktu"] > 10 || $_POST["kualitas_pekerjaan"] > 10 || $_POST["kuantitas_hasil"] > 10 || $_POST["presensi"] > 10 || $_POST["kerjasama_tim"] > 10 || $_POST["inisiatif"] > 10 || $_POST["kepemimpinan"] > 10 || $_POST["perilaku"] > 10 || $_POST["karakter"] > 10){
-            header("Location: /add?status=error&message=Data gagal disimpan, rentang nilai 1-10!");
-            exit();
+        $datas = $_POST;
+        $required = ["nama","jabatan","nik","tanggung_jawab_peran","ketepatan_waktu","kualitas_pekerjaan","kuantitas_hasil","presensi","kerjasama_tim","inisiatif","kepemimpinan","perilaku","karakter"];
+
+        $validation = Helper::validation($datas, $required);
+        if($validation == false){
+            Helper::redirect("/", "error", "Data gagal disimpan, terdapat kolom yang kosong!");
         }
 
         if(strlen($_POST["nik"]) < 16 || strlen($_POST["nik"]) > 16){
-            header("Location: /add?status=error&message=Data gagal disimpan, NIK tidak boleh kurang dari atau lebih dari 16 karakter!");
-            exit();
+            Helper::redirect("/", "error", "Data gagal disimpan, NIK tidak boleh kurang dari atau lebih dari 16 karakter!");
         }
         
         $insert = $this->model->SaveKaryawan($_POST);
         if($insert){
-            header("Location: /?status=success&message=Data berhasil disimpan!");
-            exit();
+            Helper::redirect("/", "success", "Data berhasil disimpan!");
         }else{
-            header("Location: /?status=error&message=Data gagal disimpan!");
-            exit();
+            Helper::redirect("/", "error", "Data gagal disimpan!");
         }
     }
 
@@ -85,33 +81,28 @@ class KaryawanController{
     {
         $datas["page"]  = "edit";
         $datas["karyawan"]  = $this->model->GetKaryawanById($_POST["id"]);
-        $this->render("form", $datas);
+        Helper::view("edit", $datas);
     }
 
     public function update()
-    {
-        if($_POST["nama"]  == null || $_POST["jabatan"]  == null || $_POST["nik"]  == null || $_POST["tanggung_jawab_peran"]  == null || $_POST["ketepatan_waktu"]  == null || $_POST["kualitas_pekerjaan"]  == null || $_POST["kuantitas_hasil"]  == null || $_POST["presensi"]  == null || $_POST["kerjasama_tim"]  == null || $_POST["inisiatif"]  == null || $_POST["kepemimpinan"]  == null || $_POST["perilaku"]  == null || $_POST["karakter"] == null){
-            header("Location: /?status=error&message=Data gagal disimpan, terdapat kolom yang kosong!");
-            exit();
-        }
-        
-        if($_POST["tanggung_jawab_peran"] < 1 || $_POST["ketepatan_waktu"] < 1 || $_POST["kualitas_pekerjaan"] < 1 || $_POST["kuantitas_hasil"] < 1 || $_POST["presensi"] < 1 || $_POST["kerjasama_tim"] < 1 || $_POST["inisiatif"] < 1 || $_POST["kepemimpinan"] < 1 || $_POST["perilaku"] < 1 || $_POST["karakter"] < 1 || $_POST["tanggung_jawab_peran"] > 10 || $_POST["ketepatan_waktu"] > 10 || $_POST["kualitas_pekerjaan"] > 10 || $_POST["kuantitas_hasil"] > 10 || $_POST["presensi"] > 10 || $_POST["kerjasama_tim"] > 10 || $_POST["inisiatif"] > 10 || $_POST["kepemimpinan"] > 10 || $_POST["perilaku"] > 10 || $_POST["karakter"] > 10){
-            header("Location: /?status=error&message=Data gagal disimpan, rentang nilai 1-10!");
-            exit();
+    {        
+        $datas = $_POST;
+        $required = ["nama","jabatan","nik","tanggung_jawab_peran","ketepatan_waktu","kualitas_pekerjaan","kuantitas_hasil","presensi","kerjasama_tim","inisiatif","kepemimpinan","perilaku","karakter"];
+
+        $validation = Helper::validation($datas, $required);
+        if($validation == false){
+            Helper::redirect("/", "error", "Data gagal diupdate, terdapat kolom yang kosong!");
         }
 
         if(strlen($_POST["nik"]) < 16 || strlen($_POST["nik"]) > 16){
-            header("Location: /?status=error&message=Data gagal disimpan, NIK tidak boleh kurang dari atau lebih dari 16 karakter!");
-            exit();
+            Helper::redirect("/", "error", "Data gagal disimpan, NIK tidak boleh kurang dari atau lebih dari 16 karakter!");
         }
 
         $update  = $this->model->UpdateKaryawan($_POST["id"], $_POST);
         if($update){
-            header("Location: /?status=success&message=Data berhasil diupdate!");
-            exit();
+            Helper::redirect("/", "success", "Data berhasil diupdate!");
         }else{
-            header("Location: /?status=error&message=Data gagal diupdate!");
-            exit();
+            Helper::redirect("/", "error", "Data gagal diupdate!");
         }
     }
 
@@ -119,17 +110,9 @@ class KaryawanController{
     {
         $delete = $this->model->DeleteKaryawan($_POST["id"]);
         if($delete){
-            header("Location: /?status=success&message=Data berhasil dihapus");
+            Helper::redirect("/", "success", "Data berhasil dihapus!");
         }else{
-            header("Location: /?status=error&message=Data gagal dihapus");
+            Helper::redirect("/", "error", "Data gagal dihapus!");
         }
-    }
-
-    private function render(string $view, array $datas = null)
-    {
-        if(isset($datas)){
-            extract($datas);
-        }
-        include __DIR__ . "/../views/". $view .".php";
     }
 }
